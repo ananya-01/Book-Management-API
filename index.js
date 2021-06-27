@@ -6,6 +6,9 @@ const database = require("./database");
 // Initialization
 const bookApi = express();
 
+//configuration
+bookApi.use(express.json());
+
 /*
 Route          /
 Description    Get all books
@@ -195,6 +198,153 @@ bookApi.get("/publications/book/:isbn", (req, res) => {
   }
 
   return res.json({ publication : getSpecificPublication });
+});
+
+
+/*
+Route           /book/add
+Description     add new book
+Access          PUBLIC
+Parameter       NONE
+Methods         POST
+*/
+bookApi.post("/book/add", (req, res) => {
+  const { newBook } = req.body;
+  database.books.push(newBook);
+  return res.json({ books: database.books });
+});
+
+/*
+Route           /author/add
+Description     add new author
+Access          PUBLIC
+Parameter       NONE
+Methods         POST
+*/
+bookApi.post("/author/add", (req, res) => {
+  const { newAuthor } = req.body;
+  database.author.push(newAuthor);
+  return res.json({ authors: database.author });
+});
+
+/*
+Route          /publications/add
+Description    add new publication
+Access         Public
+Parameter      None
+Methods        POST  
+*/
+bookApi.post("/publications/add",(req,res) => {
+  const {newPublication} = req.body;
+
+  database.publications.push(newPublication);
+  return res.json({publications : database.publications});
+});
+
+/*
+Route          /book/update/title
+Description    update book title
+Access         Public
+Parameter      isbn
+Methods        PUT 
+*/
+bookApi.put("/book/update/title/:isbn",(req,res) => {
+  database.books.forEach((book) => {
+    if(book.ISBN === req.params.isbn){
+      book.title = req.body.newBookTitle;
+      return;
+    }
+  });
+  return res.json({books: database.books});
+});
+
+/*
+Route          /book/update/author
+Description    update/add new author for a book
+Access         Public
+Parameter      isbn
+Methods        PUT 
+*/
+bookApi.put("/book/update/author/:isbn/:authorId", (req, res) => {
+  // update book database
+
+  database.books.forEach((book) => {
+    if (book.ISBN === req.params.isbn) {
+      return book.author.push(parseInt(req.params.authorId));
+    }
+  });
+
+  // update author database
+
+  database.author.forEach((author) => {
+    if (author.id === parseInt(req.params.authorId))
+      return author.books.push(req.params.isbn);
+  });
+
+  return res.json({ books: database.books, author: database.author });
+});
+
+/*
+Route          /author/update/book
+Description    Update Author name by id
+Access         Public
+Parameter      id
+Methods        PUT 
+*/
+
+bookApi.put("/author/update/book/:id",(req,res) => {
+  database.author.forEach((author) => {
+    if(author.id === req.params.id){
+      author.books = req.body.newAuthorBook;
+      return;
+    }
+  });
+  return res.json({author: database.author});
+});
+
+
+/*
+Route          /publication/update/book
+Description    update the publication name by id
+Access         Public
+Parameter      id
+Methods        PUT 
+*/
+bookApi.put("/publication/update/book/:id",(req,res) => {
+  database.publications.forEach((publications) => {
+    if(publications.id === req.params.id){
+      publications.books = req.body.newPublicationBook;
+      return;
+    }
+  });
+  return res.json({publications: database.publications});
+});
+
+
+/*
+Route          /book/update/publications
+Description    update/add books to publications
+Access         Public
+Parameter      isbn
+Methods        PUT 
+*/
+bookApi.put("/book/update/publications/:isbn/:publicationsId", (req, res) => {
+  // update book database
+
+  database.books.forEach((book) => {
+    if (book.ISBN === req.params.isbn) {
+      return book.publications.push(parseInt(req.params.publicationsId));
+    }
+  });
+
+  // update publications database
+
+  database.publications.forEach((publications) => {
+    if (publications.id === parseInt(req.params.publicationsId))
+      return publications.books.push(req.params.isbn);
+  });
+
+  return res.json({ books: database.books, publications: database.publications});
 });
 
 bookApi.listen(3000, () => console.log("The server is running."));
