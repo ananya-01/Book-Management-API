@@ -328,23 +328,145 @@ Access         Public
 Parameter      isbn
 Methods        PUT 
 */
-bookApi.put("/book/update/publications/:isbn/:publicationsId", (req, res) => {
+bookApi.put("/book/update/publications/:isbn/:publicationId", (req, res) => {
   // update book database
 
   database.books.forEach((book) => {
     if (book.ISBN === req.params.isbn) {
-      return book.publications.push(parseInt(req.params.publicationsId));
+      return book.publications.push(parseInt(req.params.publicationId));
     }
   });
 
-  // update publications database
+  // update author database
 
   database.publications.forEach((publications) => {
-    if (publications.id === parseInt(req.params.publicationsId))
+    if (publications.id === parseInt(req.params.publicationId))
       return publications.books.push(req.params.isbn);
   });
 
-  return res.json({ books: database.books, publications: database.publications});
+  return res.json({ books: database.books, publications: database.publications });
+});
+
+
+
+/*
+Route          /book/delete
+Description    delete a book
+Access         Public
+Parameter      isbn
+Methods        DELETE
+*/
+bookApi.delete("/book/delete/:isbn",(req,res) => {
+  const upadtedBookDatabase = database.books.filter(
+    (book) => book.ISBN !== req.params.isbn
+  );
+  database.books = upadtedBookDatabase;
+  return res.json({books : database.books});
+
+});
+
+/*
+Route          /author/delete
+Description    delete an author
+Access         Public
+Parameter      id
+Methods        DELETE
+*/
+bookApi.delete("/author/delete/:id",(req,res) => {
+  const updatedAuthorDatabase = database.author.filter(
+    (author) => author.id !== req.params.id
+  );
+  database.author = updatedAuthorDatabase;
+  return res.json({author: database.author});
+
+});
+
+/*
+Route          /publication/delete
+Description    delete a publications
+Access         Public
+Parameter      id
+Methods        DELETE
+*/
+bookApi.delete("/publication/delete/:id",(req,res) => {
+  const updatedPublicationDatabase = database.publications.filter(
+    (publications) => publications.id !== req.params.id
+  );
+  database.publications = updatedPublicationDatabase;
+  return res.json({publications: database.publications});
+
+});
+
+
+/*
+Route          /book/delete/author
+Description    delete an author from a book
+Access         Public
+Parameter      isbn
+Methods        DELETE
+*/
+bookApi.delete("/book/delete/author/:isbn/:authorId", (req, res) => {
+  // update the book database
+  database.books.forEach((book) => {
+    if (book.ISBN === req.params.isbn) {
+      const newAuthorList = book.author.filter(
+        (author) => author !== parseInt(req.params.authorId)
+      );
+      book.author = newAuthorList;
+      return;
+    }
+  });
+
+  // update the author database
+  database.author.forEach((author) => {
+    if (author.id === parseInt(req.params.authorId)) {
+      const newBooksList = author.books.filter(
+        (books) => books !== req.params.isbn
+      );
+
+      author.books = newBooksList;
+      return;
+    }
+  });
+
+  return res.json({
+    books: database.books,
+    author: database.author,
+  });
+});
+
+/*
+Route          /book/delete/publication
+Description    delete a book from publication
+Access         Public
+Parameter      isbn, publication id
+Methods        DELETE
+*/
+bookApi.delete("/book/delete/publication/:isbn/:publicationId", (req, res) => {
+  // update publication database
+  database.publications.forEach((publications) => {
+    if (publications.id === parseInt(req.params.pubId)) {
+      const newBooksList = publications.books.filter(
+        (books) => books !== req.params.isbn
+      );
+
+      publications.books = newBooksList;
+      return;
+    }
+  });
+
+  // update book database
+  database.books.forEach((books) => {
+    if (books.ISBN === req.params.isbn) {
+      books.publications = 0; // no publication available
+      return;
+    }
+  });
+
+  return res.json({
+    books: database.books,
+    publications: database.publications,
+  });
 });
 
 bookApi.listen(3000, () => console.log("The server is running."));

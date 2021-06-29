@@ -1,4 +1,4 @@
-const books = [
+let books = [
     { 
         ISBN: "12345Book",
         title: "Getting started with MERN",
@@ -30,6 +30,7 @@ const publications =[
         name: "writex",
         books: ["12345Book"], 
     },
+   
 ];
 
 module.exports = {books,author,publications};
