@@ -1,4 +1,7 @@
+require("dotenv").config();
+
 const express = require("express");
+const mongoose = require("mongoose");
 
 // Database
 const database = require("./database");
@@ -9,6 +12,17 @@ const bookApi = express();
 //configuration
 bookApi.use(express.json());
 
+//Database connection
+mongoose.connect(
+    process.env.MONGO_URL,{
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true
+  }
+)
+.then(() => console.log("Connection is done."));
+
 /*
 Route          /
 Description    Get all books
@@ -16,10 +30,10 @@ Access         Public
 Parameter      None
 Methods        GET  
 */
-
 bookApi.get("/", (req, res) => {
   return res.json({ books: database.books });
 });
+
 
 /*
 Route          /is
@@ -28,7 +42,6 @@ Access         Public
 Parameter      None
 Methods        GET  
 */
-
 bookApi.get("/is/:isbn", (req, res) => {
   const getSpecificBook = database.books.filter(
     (book) => book.ISBN === req.params.isbn
@@ -43,6 +56,7 @@ bookApi.get("/is/:isbn", (req, res) => {
   return res.json({ book: getSpecificBook });
 });
 
+
 /*
 Route          /c
 Description    Get specific books based on category
@@ -50,7 +64,6 @@ Access         Public
 Parameter      Category
 Methods        GET  
 */
-
 bookApi.get("/c/:category", (req, res) => {
   const getSpecificBook = database.books.filter((book) =>
     book.category.includes(req.params.category)
@@ -65,6 +78,7 @@ bookApi.get("/c/:category", (req, res) => {
   return res.json({ book: getSpecificBook });
 });
 
+
 /*
 Route          /l
 Description    Get specific books based on language
@@ -72,7 +86,6 @@ Access         Public
 Parameter      language
 Methods        GET  
 */
-
 bookApi.get("/l/:language", (req, res) => {
   const getSpecificBook = database.books.filter((book) =>
     book.language.includes(req.params.language)
@@ -87,6 +100,7 @@ bookApi.get("/l/:language", (req, res) => {
   return res.json({ book: getSpecificBook });
 });
 
+
 /*
 Route          /author
 Description    Get all author
@@ -94,10 +108,10 @@ Access         Public
 Parameter      None
 Methods        GET  
 */
-
 bookApi.get("/author",(req,res)=>{
     return res.json({authors: database.author});
 });
+
 
 /*
 Route          /author/id
@@ -106,7 +120,6 @@ Access         Public
 Parameter      id
 Methods        GET  
 */
- 
 bookApi.get("/author/:id", (req, res) => {
   const getSpecificAuthor = database.author.filter((author) =>
     author.id.includes(req.params.id)
@@ -129,7 +142,6 @@ Access         Public
 Parameter      isbn
 Methods        GET  
 */
-
 bookApi.get("/author/book/:isbn", (req, res) => {
   const getSpecificAuthor = database.author.filter((author) =>
     author.books.includes(req.params.isbn)
@@ -152,10 +164,10 @@ Access         Public
 Parameter      NONE
 Methods        GET  
 */
- 
 bookApi.get("/publications", (req, res) => {
   return res.json({ publications: database.publications });
 });
+
 
 /*
 Route          /publications/id
@@ -178,6 +190,7 @@ bookApi.get("/publications/:id", (req, res) => {
   return res.json({ publication: getSpecificPublication });
 });
 
+
 /*
 Route          /publications/book
 Description    Get all specific publications based on book
@@ -185,7 +198,6 @@ Access         Public
 Parameter      isbn
 Methods        GET  
 */
-
 bookApi.get("/publications/book/:isbn", (req, res) => {
   const getSpecificPublication = database.publications.filter((publications) =>
     publications.books.includes(req.params.isbn)
@@ -214,6 +226,7 @@ bookApi.post("/book/add", (req, res) => {
   return res.json({ books: database.books });
 });
 
+
 /*
 Route           /author/add
 Description     add new author
@@ -226,6 +239,7 @@ bookApi.post("/author/add", (req, res) => {
   database.author.push(newAuthor);
   return res.json({ authors: database.author });
 });
+
 
 /*
 Route          /publications/add
@@ -240,6 +254,7 @@ bookApi.post("/publications/add",(req,res) => {
   database.publications.push(newPublication);
   return res.json({publications : database.publications});
 });
+
 
 /*
 Route          /book/update/title
@@ -257,6 +272,7 @@ bookApi.put("/book/update/title/:isbn",(req,res) => {
   });
   return res.json({books: database.books});
 });
+
 
 /*
 Route          /book/update/author
@@ -284,6 +300,7 @@ bookApi.put("/book/update/author/:isbn/:authorId", (req, res) => {
   return res.json({ books: database.books, author: database.author });
 });
 
+
 /*
 Route          /author/update/book
 Description    Update Author name by id
@@ -291,7 +308,6 @@ Access         Public
 Parameter      id
 Methods        PUT 
 */
-
 bookApi.put("/author/update/book/:id",(req,res) => {
   database.author.forEach((author) => {
     if(author.id === req.params.id){
@@ -348,7 +364,6 @@ bookApi.put("/book/update/publications/:isbn/:publicationId", (req, res) => {
 });
 
 
-
 /*
 Route          /book/delete
 Description    delete a book
@@ -365,6 +380,7 @@ bookApi.delete("/book/delete/:isbn",(req,res) => {
 
 });
 
+
 /*
 Route          /author/delete
 Description    delete an author
@@ -380,6 +396,7 @@ bookApi.delete("/author/delete/:id",(req,res) => {
   return res.json({author: database.author});
 
 });
+
 
 /*
 Route          /publication/delete
@@ -468,5 +485,6 @@ bookApi.delete("/book/delete/publication/:isbn/:publicationId", (req, res) => {
     publications: database.publications,
   });
 });
+
 
 bookApi.listen(3000, () => console.log("The server is running."));
