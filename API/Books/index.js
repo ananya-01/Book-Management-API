@@ -14,8 +14,12 @@ Parameter      None
 Methods        GET  
 */
 Router.get("/", async (req, res) => {
+  try{
     const getAllBooks = await BookModel.find();
     return res.json(getAllBooks);
+  }catch(error){
+    return res.json({error: error.message});
+  }
   });
   
   
@@ -27,6 +31,7 @@ Router.get("/", async (req, res) => {
   Methods        GET  
   */
   Router.get("/is/:isbn", async (req, res) => {
+    try{
   
     const getSpecificBook = await BookModel.findOne({
       ISBN: req.params.isbn
@@ -40,6 +45,9 @@ Router.get("/", async (req, res) => {
     }
   
     return res.json({ getSpecificBook });
+  }catch(error){
+    return res.json({error: error.message});
+  }
   });
   
   
@@ -51,6 +59,7 @@ Router.get("/", async (req, res) => {
   Methods        GET  
   */
   Router.get("/c/:category", async (req, res) => {
+    try{
     const getSpecificBook = await BookModel.findOne({
       category: req.params.category
     });
@@ -63,6 +72,9 @@ Router.get("/", async (req, res) => {
     }
   
     return res.json({ getSpecificBook });
+  }catch(error){
+    return res.json({error: error.message});
+  }
   });
   
   
@@ -74,6 +86,7 @@ Router.get("/", async (req, res) => {
   Methods        GET  
   */
   Router.get("/l/:language", async (req, res) => {
+    try{
     const getSpecificBook = await BookModel.findOne({
       language: req.params.language
     });
@@ -86,6 +99,9 @@ Router.get("/", async (req, res) => {
     }
   
     return res.json({ book: getSpecificBook });
+  }catch(error){
+    return res.json({error: error.message});
+  }
   });
 
 
@@ -97,10 +113,14 @@ Parameter       NONE
 Methods         POST
 */
 Router.post("/add", async (req, res) => {
+  try{
     const { newBook } = req.body;
   
-    const addNewBook = BookModel.create(newBook);
+    const addNewBook = await BookModel.create(newBook);
     return res.json({ addNewBook });
+  }catch(error){
+    return res.json({error: error.message});
+  }
   });
 
   
@@ -113,6 +133,7 @@ Parameter      isbn
 Methods        PUT 
 */
 Router.put("/update/title/:isbn", async(req,res) => {
+  try{
     const updatedBook = await BookModel.findOneAndUpdate({
       ISBN : req.params.isbn,
     },
@@ -124,6 +145,9 @@ Router.put("/update/title/:isbn", async(req,res) => {
     }
     );
     return res.json({books: updatedBook});
+  }catch(error){
+    return res.json({error: error.message});
+  }
   });
   
   
@@ -135,6 +159,7 @@ Router.put("/update/title/:isbn", async(req,res) => {
   Methods        PUT 
   */
   Router.put("/update/author/:isbn", async (req, res) => {
+    try{
     // update the book database
     const updatedBook = await BookModel.findOneAndUpdate(
       {
@@ -168,6 +193,9 @@ Router.put("/update/title/:isbn", async(req,res) => {
       books: updatedBook,
       authors: updatedAuthor,
     });
+  }catch(error){
+    return res.json({error: error.message});
+  }
   });
 
   /*
@@ -178,13 +206,16 @@ Parameter      isbn
 Methods        DELETE
 */
 Router.delete("/delete/:isbn",async(req,res) => {
+  try{
     const updatedBookDatabase = await BookModel.findOneAndDelete(
       {
         ISBN : req.params.isbn
       });
    
     return res.json({books :updatedBookDatabase });
-  
+    }catch(error){
+      return res.json({error: error.message});
+    }
   });
 
 
@@ -196,6 +227,7 @@ Parameter      isbn
 Methods        DELETE
 */
 Router.delete("/delete/author/:isbn/:authorId", async (req, res) => {
+  try{
     // update the book database
   
     const updatedBook = await BookModel.findOneAndUpdate(
@@ -227,6 +259,9 @@ Router.delete("/delete/author/:isbn/:authorId", async (req, res) => {
       books: updatedBook,
       author: updatedAuthor,
     });
+  }catch(error){
+    return res.json({error: error.message});
+  }
   });
 
   module.exports = Router;

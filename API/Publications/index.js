@@ -15,8 +15,12 @@ Parameter      NONE
 Methods        GET  
 */
 Router.get("/",  async(req, res) => {
+  try{
     const getAllPublications = await PublicationModel.find();
     return res.json({ publications: getAllPublications });
+  }catch(error){
+    return res.json({error: error.message});
+  }
   });
   
   
@@ -28,6 +32,7 @@ Router.get("/",  async(req, res) => {
   Methods        GET  
   */
   Router.get("/:id", async (req, res) => {
+    try{
     const getSpecificPublication = await PublicationModel.findOne({
       id:req.params.id
     });
@@ -40,6 +45,9 @@ Router.get("/",  async(req, res) => {
     }
   
     return res.json({ publication: getSpecificPublication });
+  }catch(error){
+    return res.json({error: error.message});
+  }
   });
   
   
@@ -51,6 +59,7 @@ Router.get("/",  async(req, res) => {
   Methods        GET  
   */
   Router.get("/book/:isbn", async (req, res) => {
+    try{
     const getSpecificPublication = await PublicationModel.findOne({
       books:req.params.isbn
     });
@@ -63,6 +72,9 @@ Router.get("/",  async(req, res) => {
     }
   
     return res.json({ publication : getSpecificPublication });
+  }catch(error){
+    return res.json({error: error.message});
+  }
   });
   
   
@@ -74,10 +86,14 @@ Router.get("/",  async(req, res) => {
   Methods        POST  
   */
   Router.post("/add", async (req,res) => {
+    try{
     const {newPublication} = req.body;
   
-    const addNewPublication = PublicationModel.create(newPublication);
+    const addNewPublication = await PublicationModel.create(newPublication);
     return res.json({addNewPublication});
+    }catch(error){
+      return res.json({error: error.message});
+    }
   });
   
 
@@ -89,6 +105,7 @@ Router.get("/",  async(req, res) => {
   Methods        PUT 
   */
   Router.put("/update/name/:id", async(req,res) => {
+    try{
     const updatedPublication = await PublicationModel.findOneAndUpdate({
       id: req.params.id
     },
@@ -100,6 +117,9 @@ Router.get("/",  async(req, res) => {
     });
   
     return res.json({publications: updatedPublication});
+  }catch(error){
+    return res.json({error: error.message});
+  }
   });
   
   
@@ -111,6 +131,7 @@ Router.get("/",  async(req, res) => {
   Methods        PUT 
   */
   Router.put("/book/update/:isbn",async (req, res) => {
+    try{
     // update book database
     const updatedBook = await BookModel.findOneAndUpdate({
       ISBN : req.params.isbn
@@ -140,6 +161,9 @@ Router.get("/",  async(req, res) => {
     );
   
     return res.json({ books: updatedBook, publications: updatedPublication });
+  }catch(error){
+    return res.json({error: error.message});
+  }
   });
   
   /*
@@ -150,12 +174,15 @@ Router.get("/",  async(req, res) => {
   Methods        DELETE
   */
   Router.delete("/delete/:id",async(req,res) => {
+    try{
     const updatedPublicationDatabase = await PublicationModel.findOneAndDelete(
       {
         id : req.params.id
       });
     return res.json({publications: updatedPublicationDatabase });
-  
+    }catch(error){
+      return res.json({error: error.message});
+    }
   });
 
   
@@ -167,6 +194,7 @@ Router.get("/",  async(req, res) => {
   Methods        DELETE
   */
   Router.delete("/book/delete/:isbn/:publicationId", async(req, res) => {
+    try{
     // update publication database
     const updatedPublication = await PublicationModel.findOneAndUpdate(
       {
@@ -197,6 +225,9 @@ Router.get("/",  async(req, res) => {
       books: updatedBook,
       publications: updatedPublication,
     });
+  }catch(error){
+    return res.json({error: error.message});
+  }
   });
 
   
